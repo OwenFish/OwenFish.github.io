@@ -1,0 +1,107 @@
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <!--<link href="../../css/styles.css" rel="stylesheet" />-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link href="../blogCSS/master.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Saira+Extra+Condensed:500,700" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Muli:400,400i,800,800i" rel="stylesheet" type="text/css" />
+
+
+  </head>
+
+
+  <body>
+    <div class="container-fluid margin-med">
+      <h2 class="mb-5 text-center">Artificial Methods for Knowledge Base Completion</h2>
+
+      <p class="blog-text">
+      This semester, in my 'Algorithms of the Internet' course, we learned about various algorithms that drive the internet that we know today (duh).
+      We learned about finding similar itemsets, network cluster detection, and link analysis, among others. The course required a final project, and though we never covered
+      it specifically, I did my project on web-based Knowledge Graphs. Specifically, artificial completion methods for incomplete graphs. The final report can be found here,
+      but today I'm going to talk a little more about my project, why it's important, the intuition behind it, and how it can be expanded in the future.
+      </p>
+
+      <p class="blog-text">
+      In computer science domains, a graph is a data structure that stores a set of nodes and a set of links (sometimes edges) between those nodes. For example,
+      the Facebook graph would have a node for each profile and a link between two profiles if they are ‘friends.’ This data structure allows for efficient storage
+      of relationship-based information. A Knowledge Graph is simply a graph that stores factual information. The nodes are real-world entities; think nouns,
+      and the links are relationships of a certain type. So, in this interpretation, all facts are simply a relationship between two entities.
+      To embed the fact: “elephants have long trunks,” we might link the node elephant to the node long_trunk by the relationship body_part.
+      </p>
+
+      <p class="blog-text">
+      Knowledge Graphs are extremely useful in many web-based tasks. Take, for example, Google search. If a user asked “who wrote The Great Gatsby?”
+      the search engine could search through all the authors and each work until it finds a match, or, with a complete KG, we could find the entity for ‘Great Gatsby,’
+      and find its author link to the result node: ‘F. Scott Fitzgerald.’ There is much more documentation about knowledge bases, both theoretical and implemented,
+      on <a href="https://googleblog.blogspot.com/2012/05/introducing-knowledge-graph-things-not.html">Google's Blog</a>
+      </p>
+
+      <p class="blog-text">
+      In practice, a knowledge base is not easy to create and maintain. The number of entities that are tracked is incredibly large, and there are even more relationships
+      between existing entities. In essence, we are storing the number of facts in human knowledge. And while it is difficult from a storage perspective to embed
+      all possible facts, it is even more difficult to even gather all the facts in the first place. For this reason, we can expect there to be a number of missing facts.
+      To help combat this problem, much research has been conducted on knowledge-graph completion methods. This area of research can basically be broken
+      down into three sub-categories: web-parsing methods, embedding methods, and rule-based methods.
+      </p>
+
+
+
+      <h3>Web-parsing methods:</h3><p class="blog-text">
+      This type of completion algorithm focuses heavily on the idea that facts that exist are documented on the web. A really cool <a href="QuestionAnswering.pdf">paper</a>
+      takes advantage of this fact by creating a question-answering system for unknown facts. That is, it identifies missing facts
+      (if a person’s node is missing a birthday link, for example) and constructs an efficient web-search query to find the answer.
+      This method only really works on missing facts that can easily be identified, though. It is clear that every node representing a person should
+      have a link to a mother, to a father, to a birthday. On facts that are not implied simply by existence, however, (i.e. a link from LeBron James to the NBA)
+      this method does not work.
+      </p>
+
+
+      <h3>Embedding Methods:</h3><p class="blog-text">
+      Another type of auto-completion subcategory, embedding methods try to find an organized way to store nodes in vector space such that relationships are
+      consistent transformations between nodes. So, if we have a node for “Christian Bale,” represented by the vector (1, 0, 0) and node for “The Dark Knight,”
+      represented by the vector (2, 3, 2), we can embed the relationship “starredIn” as a linear transformation given by (1, 3, 2). Now, Christian Bale + starredIn = The Dark Knight.
+      It’s important to note that the vector representation of relationships need to stay consistent across the entire graph. So, we will need to find representations of “Matt Damon”
+      and “Good Will Hunting” such that “Good Will Hunting” - “Matt Damon” = (1, 3, 2) = starredIn. Keeping everything organized gets complex quickly as the number of entities and relationships increases.
+      To mitigate this complexity, most research includes the idea of a tolerance; the transformations don’t need to give the link exactly, but rather, generally.
+      So a distance tolerance would allow “The Dark Knight” some flexibility in its representation: it doesn’t need to be exactly (1, 0, 0) + (1, 3, 2) = (2, 3, 2),
+      as long as it’s representation is closer in Euclidean distance than the tolerance parameter. This has two benefits. First, it allows a single entity to map to
+      multiple entities of the same relationship; Christian Bale has starred in multiple movies, so American Psycho might appear nearby. Second, it lowers computational
+      complexity by easing the equality restrictions. A variation on this idea trains a machine learning model (neural tensor) on entity embeddings, and thus can
+      represent relationships in more complex surfaces than a simple, consistent linear transformation can. Embedding methods in general are significant in the
+      sense that they do not require any outside computation for knowledge base completion. For example, the question-answering solution above searches
+      in an outside resource to find relationships, but embedding methods create the embeddings based on the relationships in the graph already and infers
+      relationships based on that embedding totally offline.
+      </p>
+
+      <h3>Rule-Based Methods:</h3><p class="blog-text">
+      The third type of auto completion algorithm learns rules in the Knowledge Graph and simply applies them in appropriate situations.
+      This type of algorithm is the subject of my research paper. If we interpret a knowledge graph simply as a computer science graph, a path between entities
+      1 and 2 may imply a direct relationship between those two entities. For example, say our knowledge graph is missing a link between Kurt Cobain and Musician,
+      but it has both a link between Kurt Cobain and Nirvana and a link between Nirvana and Music Group. Given the links that are there, a completion algorithm
+      should be able to recognize that a member of a band is a musician, and we should predict a link between Kurt Cobain and Musician. <a href="#">This paper</a>
+      proposes that to build a predictive model that uses this type of logic, we need both a set of relationships on a path from one entity to another and a c
+      ontext for each node on that path. My report used only the ordered set of relationships from one entity to another,
+      as I was more concerned with logical rule extraction (i.e. father + father = grandfather). This is beneficial because it allows the algorithm
+      to be more robust towards knowledge graphs of different sizes and domains: if we can find a set of rules that are consistent across the set of relationships,
+      that set of rules is unlikely to change much in different situations.
+      </p>
+
+
+
+
+    </div>
+
+<!--
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+-->
+
+  </body>
+</html>
